@@ -59,7 +59,7 @@ interface CommentsProps {
 export default function Comments({address} : CommentsProps) {
     const [comment, setComment] = useState('');
     const [comments, setComments] = useState<Array<any>>([]);
-    let contractAddress: string = "0xA669bc44e81EaE5F7f4C0b2CC012bcC23629Bf24";
+    let contractAddress: string = "0xC41d3BCEA02aBcAf61eA16a978a1FED204703895";
 
 
 
@@ -94,29 +94,36 @@ export default function Comments({address} : CommentsProps) {
 
     const tipComment = async (id: number) => {
         await contract.methods.tipComment(id)
-            .send({from: address})
+            .send({from: address, value: web3.utils.toWei("1", "ether"), gas: 3000000})
             .on("receipt", (receipt: object) => {
                 console.log(receipt)
             })
             .on("error", (error: Error) => {console.error(error)})
 
     }
-
+    
     useEffect(() => {
         let loadedComments: any[] = []
         contract.getPastEvents("commentAdded", {fromBlock: 0, toBlock: "latest"})
             .then((events:Array<Object>) => {
+                console.log(events);
+                
                 events.forEach((comment: any) => {
                     loadedComments.push(comment.returnValues)
                     loadedComments = [...comments, ...loadedComments]
                     setComments(loadedComments)
                 })
         })
+
     }, [])
 
     useEffect(() => {
         contract.events.commentAdded()
         .on("data", (event: any) => setComments([...comments, event.returnValues]))
+        .on('error', console.error)
+
+        contract.events.commentTipped()
+        .on("data", (event: any) => {console.log("Comment tipped: ", event.returnValues)})
         .on('error', console.error)
     }, [comments])
     
@@ -133,7 +140,8 @@ export default function Comments({address} : CommentsProps) {
             </CommentsSearchBar>
             {comments.map((comment, key) => (
                 <>
-                    <Comment content={comment.content} author = {comment.author} initialTips={comment.initialTips} timestamp={comment.timestamp} key = {key} id={key} tipComment = {tipComment}/>
+                    {console.log(comment)}
+                    <Comment content={comment.content} author = {comment.author} tips={Number(comment.tips)} timestamp={comment.timestamp} key = {key} id={key} tipComment = {tipComment}/>
                 </>
 
 

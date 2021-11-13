@@ -52,14 +52,12 @@ const CommentTip = styled.button`
 interface CommentProps {
     author: string,
     timestamp: string,
-    initialTips: string,
+    tips: Number,
     content: string,
     tipComment: (id: any) => any,
     id: number,
 }
-const Comment = ({author, timestamp, initialTips, content, tipComment, id} : CommentProps) => {
-    const [tips, setTips ] = useState(initialTips);
-    // @todo function to tip commennts
+const Comment = ({author, timestamp, tips, content, tipComment, id} : CommentProps) => {
 
 
     return (
@@ -76,7 +74,7 @@ const Comment = ({author, timestamp, initialTips, content, tipComment, id} : Com
                     </CommentContent>
             </InfoContainer>
             <CommentTip >
-                {initialTips}
+                Tipy: {tips}
                 <img onClick = {() => {tipComment(id)}} src={"/images/ethereum.svg"} width={"32px"} height={"32px"}/>
             </CommentTip>
         </CommentContainer>
