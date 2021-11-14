@@ -60,8 +60,8 @@ interface CommentsProps {
 export default function Comments({address} : CommentsProps) {
     const [comment, setComment] = useState('');
     const [comments, setComments] = useState<Array<any>>([]);
-    let contractAddress: string = "0xc1710D4b1De7b2bc3550765079C346AC924Cd96F";
-
+    const [tipped, setTipped] = useState();
+    let contractAddress: string = "0x0a4b4EcEB24F56c504F429d54338208f9C6065B6";
 
 
 
@@ -76,20 +76,23 @@ export default function Comments({address} : CommentsProps) {
 
     const web3 = window.web3
 
-
-
-
-    // let web3 = new Web3(new Web3.providers.WebsocketProvider("ws://localhost:8545"));
-    // let web3js = new Web3(web3.currentProvider);
-
     let contract = new web3.eth.Contract(ABI, contractAddress);
 
-    const createComment = async  () => {
+    let subscribe = web3.eth.subscribe('logs', {}, (error:Error, result:any ) => {
+        if (!error){
+            console.log("result: ", result)
+            // setComments([...comments, result.returnValues]);
+        }else console.log(`Error ${error}`)
+
+    })
+
+
+    const createComment = () => {
         if (typeof web3 !== "undefined" && comment.length > 0) {
-            await contract.methods.addComment(comment)
+            contract.methods.addComment(comment)
                 .send({from: address, gas: 300000})
-                .on("receipt", (receipt: object) => {
-                    console.log("Comment created")
+                .on("receipt",  (receipt: object) => {
+                    console.log(receipt)
                 })
                 .on("error", (error: Error) => {console.error(error)})
         }
@@ -98,49 +101,45 @@ export default function Comments({address} : CommentsProps) {
     const tipComment = async (id: number) => {
         await contract.methods.tipComment(Number(id))
             .send({from: address, value: web3.utils.toWei("1", "ether"), gas: 3000000})
+            // .on("confirmation", () => {
+            //     console.log('confirmed')
+            // })
             .on("receipt", (receipt: object) => {
                 console.log(receipt)
+
             })
+
             .on("error", (error: Error) => {console.error(error)})
+
 
     }
 
+
     // Funkcja ładująca komentarze
     useEffect(() => {
+        let loadedComments: any[] = [...comments]
         contract.methods.getCommentCount()
             .call()
-            .then((count:string) => {
-                Number(count)
-                let loadedComments: any[] = []
-                for(let i = 0; i < Number(count); i++) {
-                    contract.methods.getCommentById(i).call().then((comment:any) => {
+            .then((count: number) => {
+                for (let i = 0; i < Number(count); i++) {
+                    contract.methods.getCommentById(i).call()
+                    .then((comment: any) => {
                         loadedComments.push(comment);
-                        loadedComments = [...comments, ...loadedComments];
-                        setComments(loadedComments);
-                    });
+                        setComments([...loadedComments]);
+                    })
                 }
-            });
+            })
     }, [])
-
 
 
     // Funkcja oczekująca na komentarze
     useEffect(() => {
-        // contract.events.commendAdded()
-        //     .on("data", (event: any) => {
-        //         console.log(event)
-        //     })
-        //     .on("error", (error:Error) => {
-        //         throw error
-        //     })
+        console.log('use effect 2')
+
         contract.once("commentAdded", (error: Error, event: any) => {
             if(!error) setComments([...comments, event.returnValues]);
             else console.log(`Error ${error}`)
         })
-
-
-        // contract.on("commentAdded", addComment)
-        // contract.removeListener("commentAdded", addComment)
 
         contract.once("commentTipped", (error: Error, event: any) => {
             if(!error) {
@@ -159,28 +158,7 @@ export default function Comments({address} : CommentsProps) {
             }
             else console.log(`Error ${error}`)
         })
-
-        // contract.events.commentTipped()
-        //     .on("data", (event: any) => {
-        //         let comms: any = [...comments];
-        //         if(comms.length > 0 ) {
-        //             const tempCom = {
-        //                 content: comms[event.returnValues.id].content,
-        //                 author: comms[event.returnValues.id].author,
-        //                 tips: Number(comms[event.returnValues.id].tips) + 1,
-        //                 id: comms[event.returnValues.id].id,
-        //                 timestamp: comms[event.returnValues.id].timestamp,
-        //             };
-        //             comms[event.returnValues.id] = tempCom
-        //             setComments(comms)
-        //         }
-        //     })
-        //     .on('error', console.error)
     }, [comments])
-    
-
-
-
 
     return (
         <CommentsContainer>
@@ -193,8 +171,6 @@ export default function Comments({address} : CommentsProps) {
                 <>
                     <Comment content={comment.content} author = {comment.author} tips={Number(comment.tips)} timestamp={comment.timestamp} key = {key} id={key} tipComment = {tipComment}/>
                 </>
-
-
             ))}
         </CommentsContainer>
     );

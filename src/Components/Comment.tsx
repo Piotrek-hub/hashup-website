@@ -63,7 +63,7 @@ const Comment = ({author, timestamp, tips, content, tipComment, id} : CommentPro
     return (
         <CommentContainer>
             <ProfileImageContainer>
-                <ProfileImage src={`https://avatars.dicebear.com/api/personas/${author}.svg`} />
+                <ProfileImage src={`https://avatars.dicebear.com/api/personas/${author.toLowerCase()}.svg`} />
             </ProfileImageContainer>
             <InfoContainer>
                     <CommentAuthor>
