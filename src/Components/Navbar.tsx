@@ -83,7 +83,7 @@ const Navbar = ({address, setAddress} : NavbarProps) => {
             let web3 = new Web3(window.ethereum);
             try {
                 await window.ethereum.enable();
-                let accounts = await web3.eth.getAccounts();
+                let accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });;
                 let mainAccountAddress = accounts[0];
                 setAddress(mainAccountAddress);
                 copyAddress(mainAccountAddress);
