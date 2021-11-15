@@ -57,24 +57,32 @@ interface CommentsProps {
     address: string,
 }
 
-export default function Comments({address} : CommentsProps) {
+export default function Comments({ address }: CommentsProps) {
     const [comment, setComment] = useState('');
     const [comments, setComments] = useState<Array<any>>([]);
+<<<<<<< Updated upstream
 
     let contractAddress: string = "0xa43b542D72660c67E337493b2929f87C5248d4FD";
 
 
 
     if(window.ethereum) {
+=======
+    const [tip, setTips] = useState('');
+
+    let contractAddress: string = "0xF9EFB452bfB16E5a60bCD607CE93c84f6e08dA43";
+    if (window.ethereum) {
+>>>>>>> Stashed changes
         window.web3 = new Web3(window.ethereum);
     }
-    else if(window.web3) {
+    else if (window.web3) {
         window.web3 = new Web3(window.web3.currentProvider);
-    }else {
+    } else {
         window.alert('Non-Ethereum browser detected. You should consider trying MetaMask!')
     }
 
     const web3 = window.web3
+<<<<<<< Updated upstream
 
     let contract = new web3.eth.Contract(ABI, contractAddress);
 
@@ -95,19 +103,38 @@ export default function Comments({address} : CommentsProps) {
                 //
                 // })
                 .on("error", (error: Error) => {console.error(error)})
+=======
+    // let web3 = new Web3(new Web3.providers.WebsocketProvider("ws://localhost:8545"));
+    // let web3js = new Web3(web3.currentProvider);
+    let contract = new web3.eth.Contract(ABI, contractAddress);
+
+    const createComment = async () => {
+        if (typeof web3 !== "undefined" && comment.length > 0) {
+            await contract.methods.addComment(comment)
+                .send({ from: address, gas: 300000 })
+                .on("receipt", (receipt: object) => {
+                    console.log("Comment created")
+                })
+                .on("error", (error: Error) => { console.error(error) })
+>>>>>>> Stashed changes
         }
     }
 
     const tipComment = async (id: number) => {
         await contract.methods.tipComment(Number(id))
+<<<<<<< Updated upstream
             .send({from: address, value: web3.utils.toWei("1", "ether"), gas: 3000000})
             // .on("confirmation", () => {
             //     console.log('confirmed')
             // })
+=======
+            .send({ from: address, value: web3.utils.toWei("1", "ether"), gas: 3000000 })
+>>>>>>> Stashed changes
             .on("receipt", (receipt: object) => {
                 console.log(receipt)
 
             })
+<<<<<<< Updated upstream
 
             .on("error", (error: Error) => {console.error(error)})
 
@@ -127,12 +154,35 @@ export default function Comments({address} : CommentsProps) {
                     loadedComments[Number(pastEvent.returnValues.id)].tips += Number(web3.utils.fromWei(pastEvent.returnValues.amount, 'ether'));
                 }else{
                     console.log('Event type not found ')
+=======
+            .on("error", (error: Error) => { console.error(error) })
+    }
+    useEffect(() => {
+        contract.once("commentAdded", (error: Error, event: any) => {
+            if (!error) setComments([...comments, event.returnValues]);
+            else console.log(`Error ${error}`)
+        })
+        contract.once("commentTipped", (error: Error, event: any) => {
+            if (!error) {
+                let comms: any = [...comments];
+                if (comms.length > 0) {
+                    const tempCom = {
+                        content: comms[event.returnValues.id].content,
+                        author: comms[event.returnValues.id].author,
+                        tips: Number(comms[event.returnValues.id].tips) + 1,
+                        id: comms[event.returnValues.id].id,
+                        timestamp: comms[event.returnValues.id].timestamp,
+                    };
+                    comms[event.returnValues.id] = tempCom
+                    setComments(comms)
+>>>>>>> Stashed changes
                 }
 
             }
             else{
                 console.log(error)
             }
+<<<<<<< Updated upstream
 
         });
         setComments(loadedComments)
@@ -167,18 +217,46 @@ export default function Comments({address} : CommentsProps) {
     //     })
     // }, [comments])
 
+=======
+            else console.log(`Error ${error}`)
+        })
+        contract.methods.getCommentCount()
+            .call()
+            .then((count: string) => {
+                Number(count)
+                let loadedComments: any[] = []
+                for (let i = 0; i < Number(count); i++) {
+                    contract.methods.getCommentById(i).call().then((comment: any) => {
+                        loadedComments.push(comment);
+                        loadedComments = [...comments, ...loadedComments];
+                        setComments(loadedComments);
+                    });
+                }
+            });
+    }, [])
+
+    const showComments = () => {
+        contract.methods.getCommentCount().call().then((value: any) => {
+            for (let i = 0; i < value; i++) {
+                // contract.methods.getCommentById(i).call()
+                contract.methods.getCommentById(i).call().then((value: any) => console.log(value));
+            }
+        })
+    }
+>>>>>>> Stashed changes
     return (
         <CommentsContainer>
             <CommentsSearchBar>
                 <ProfileImage src={`https://avatars.dicebear.com/api/personas/${address}.svg`} />
-                <InputComment onChange = {(event: any) => setComment(event.target.value)} placeholder = "What's happening " type="text" defaultValue={comment}  />
-                <AddCommentButton onClick = {createComment}>Reply</AddCommentButton>
+                <InputComment onChange={(event: any) => setComment(event.target.value)} placeholder="What's happening " type="text" defaultValue={comment} />
+                <AddCommentButton onClick={createComment}>Reply</AddCommentButton>
             </CommentsSearchBar>
             {comments.map((comment, key) => (
                 <>
-                    <Comment content={comment.content} author = {comment.author} tips={Number(comment.tips)} timestamp={comment.timestamp} key = {key} id={key} tipComment = {tipComment}/>
+                    <Comment content={comment.content} author={comment.author} tips={Number(comment.tips)} timestamp={comment.timestamp} key={key} id={key} tipComment={tipComment} />
                 </>
             ))}
+            <button onClick={showComments}>show comment</button>
         </CommentsContainer>
     );
 }
