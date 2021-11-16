@@ -59,10 +59,12 @@ interface CommentsProps {
 }
 
 export default function Comments({ address }: CommentsProps) {
+
     const [comment, setComment] = useState('');
     const [comments, setComments] = useState<Array<any>>([]);
 
-    let contractAddress: string = "0xeE8Ad1e3a74E1769567A8695d81fEDC93E16f255";
+    let contractAddress: string = "0x143289478A8c5b29a58deB4db12873fa4B9FC397";
+
     if (window.ethereum) {
         window.web3 = new Web3(window.ethereum);
     } else if (window.web3) {
@@ -70,33 +72,15 @@ export default function Comments({ address }: CommentsProps) {
     } else {
         window.alert('Non-Ethereum browser detected. You should consider trying MetaMask!')
     }
+
     const web3 = window.web3
     let contract = new web3.eth.Contract(ABI, contractAddress);
 
-    // Loading old and new comments & tips
-    useEffect(() => {
-        let loadedComments: any[] = [...comments]
-        console.log(loadedComments)
-        contract.events.allEvents({fromBlock: 0, toBlock: "latest"}, (error: Error, pastEvent: any) => {
-            if (!error) {
-                if (pastEvent.event === "commentAdded") {
-                    pastEvent.returnValues.tips = 0;
-                    loadedComments.push(pastEvent.returnValues)
-                } else if (pastEvent.event === "commentTipped") {
-                    loadedComments[Number(pastEvent.returnValues.id)].tips += Number(web3.utils.fromWei(pastEvent.returnValues.amount, 'ether'));
-                } else {
-                    console.log('Event type not found ')
-                }
-            } else {
-                console.log(error)
-            }
-        })
-        setComments(loadedComments);
-    }, [])
 
-
+    
 
     const createComment = async () => {
+
         if (typeof web3 !== "undefined" && comment.length > 0) {
             await contract.methods.addComment(comment)
                 .send({from: address, gas: 300000})
@@ -107,6 +91,7 @@ export default function Comments({ address }: CommentsProps) {
                     console.error(error)
                 })
         }
+        await setComment(' ')
     }
 
     const tipComment = async (id: number) => {
@@ -124,6 +109,40 @@ export default function Comments({ address }: CommentsProps) {
             })
     }
 
+
+    // Loading comments and tips
+    useEffect(() => {
+        ( () => {
+            let loadedComments: any[] = [];
+            const commentsAmount =  contract.methods.getCommentCount().call();
+
+             contract.events.allEvents({fromBlock: 0, toBlock: "latest"}, (error: Error, pastEvent: any) => {
+                
+                if (!error) {
+                    if (pastEvent.event === "commentAdded") {
+                        pastEvent.returnValues.tips = 0;
+                        loadedComments.push(pastEvent.returnValues)
+
+                    } else if (pastEvent.event === "commentTipped") {
+                        loadedComments[Number(pastEvent.returnValues.id)].tips += Number(web3.utils.fromWei(pastEvent.returnValues.amount, 'ether'));
+                    } else {
+                        console.log('Event type not found ')
+                    }
+                    if(loadedComments.length == commentsAmount) {
+                        setComments(loadedComments);
+                    }
+                } 
+
+                else {
+                    console.log(error)
+                }
+            })
+        })();
+    }, [])
+
+    useEffect(() => {
+        
+    })
 
     return (
         
