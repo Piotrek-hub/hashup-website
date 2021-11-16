@@ -50,16 +50,14 @@ const CommentTip = styled.button`
 
 
 interface CommentProps {
-  author: string,
-  timestamp: string,
-  tips: Number,
-  content: string,
-  tipComment: (id: any) => any,
-  id: number,
+    author: string,
+    timestamp: string,
+    tips: Number,
+    content: string,
+    tipComment: (id: any) => any,
+    id: number,
 }
-<<<<<<< Updated upstream
-const Comment = ({author, timestamp, tips, content, tipComment, id} : CommentProps) => {
-
+const Comment = ({ author, timestamp, tips, content, tipComment, id }: CommentProps) => {
 
     return (
         <CommentContainer>
@@ -67,41 +65,20 @@ const Comment = ({author, timestamp, tips, content, tipComment, id} : CommentPro
                 <ProfileImage src={`https://avatars.dicebear.com/api/personas/${author.toLowerCase()}.svg`} />
             </ProfileImageContainer>
             <InfoContainer>
-                    <CommentAuthor>
-                        {copyAddress(author)} {timestamp}
-                    </CommentAuthor>
-                    <CommentContent>
-                        {content}
-                    </CommentContent>
+                <CommentAuthor>
+                    {copyAddress(author)} {timestamp}
+                </CommentAuthor>
+                <CommentContent>
+                    {content}
+                </CommentContent>
             </InfoContainer>
             <CommentTip >
                 Tipy: {tips}
-                <img onClick = {() => {tipComment(id)}} src={"/images/ethereum.svg"} width={"32px"} height={"32px"}/>
+                <img onClick={() => { tipComment(id) }} src={"/images/ethereum.svg"} width={"32px"} height={"32px"} />
             </CommentTip>
         </CommentContainer>
     )
-=======
-const Comment = ({ author, timestamp, tips, content, tipComment, id }: CommentProps) => {
-  return (
-    <CommentContainer>
-      <ProfileImageContainer>
-        <ProfileImage src={`https://avatars.dicebear.com/api/personas/${author.toLowerCase()}.svg`} />
-      </ProfileImageContainer>
-      <InfoContainer>
-        <CommentAuthor>
-          {copyAddress(author)} {timestamp}
-        </CommentAuthor>
-        <CommentContent>
-          {content}
-        </CommentContent>
-      </InfoContainer>
-      <CommentTip >
-        Tipy: {tips}
-        <img onClick={() => { tipComment(id) }} src={"/images/ethereum.svg"} width={"32px"} height={"32px"} />
-      </CommentTip>
-    </CommentContainer>
-  )
->>>>>>> Stashed changes
+
 }
 
 export default Comment;
