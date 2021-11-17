@@ -62,8 +62,9 @@ export default function Comments({ address }: CommentsProps) {
 
     const [comment, setComment] = useState('');
     const [comments, setComments] = useState<Array<any>>([]);
+    const [commentsLoaded, setCommentsLoaded] = useState(false);
 
-    let contractAddress: string = "0x143289478A8c5b29a58deB4db12873fa4B9FC397";
+    let contractAddress: string = "0x1eE2b38d1689DDF8A529802A7EdEC6AE513a46b9";
 
     if (window.ethereum) {
         window.web3 = new Web3(window.ethereum);
@@ -91,7 +92,7 @@ export default function Comments({ address }: CommentsProps) {
                     console.error(error)
                 })
         }
-        await setComment(' ')
+        setCommentsLoaded(false);
     }
 
     const tipComment = async (id: number) => {
@@ -112,33 +113,40 @@ export default function Comments({ address }: CommentsProps) {
 
     // Loading comments and tips
     useEffect(() => {
-        ( () => {
-            let loadedComments: any[] = [];
-            const commentsAmount =  contract.methods.getCommentCount().call();
-
-             contract.events.allEvents({fromBlock: 0, toBlock: "latest"}, (error: Error, pastEvent: any) => {
-                
-                if (!error) {
-                    if (pastEvent.event === "commentAdded") {
-                        pastEvent.returnValues.tips = 0;
-                        loadedComments.push(pastEvent.returnValues)
-
-                    } else if (pastEvent.event === "commentTipped") {
-                        loadedComments[Number(pastEvent.returnValues.id)].tips += Number(web3.utils.fromWei(pastEvent.returnValues.amount, 'ether'));
-                    } else {
-                        console.log('Event type not found ')
+        if(!commentsLoaded){
+            (async () => {
+                let loadedComments: any[] = [];
+                const commentsAmount =  await contract.methods.getCommentCount().call();
+    
+                await contract.events.allEvents({fromBlock: 0, toBlock: "latest"}, (error: Error, pastEvent: any) => {
+                    
+                    if (!error) {
+                        if (pastEvent.event === "commentAdded") {
+                            pastEvent.returnValues.tips = 0;
+                            loadedComments.push(pastEvent.returnValues)
+    
+                        } else if (pastEvent.event === "commentTipped") {
+                            loadedComments[Number(pastEvent.returnValues.id)].tips += Number(web3.utils.fromWei(pastEvent.returnValues.amount, 'ether'));
+                        } else {
+                            console.log('Event type not found ')
+                        }
+                        if(loadedComments.length == commentsAmount) {
+                            setComments(loadedComments);
+                            setCommentsLoaded(true);
+                        }
+                        else if (loadedComments.length > commentsAmount){
+                            setComments(loadedComments);
+                            setCommentsLoaded(true);
+                        }
+                    } 
+    
+                    else {
+                        console.log(error)
                     }
-                    if(loadedComments.length == commentsAmount) {
-                        setComments(loadedComments);
-                    }
-                } 
-
-                else {
-                    console.log(error)
-                }
-            })
-        })();
-    }, [])
+                })
+            })();
+        }
+    }, [commentsLoaded])
 
     useEffect(() => {
         
