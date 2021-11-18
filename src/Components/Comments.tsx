@@ -64,7 +64,7 @@ export default function Comments({ address }: CommentsProps) {
     const [comments, setComments] = useState<Array<any>>([]);
     const [commentsLoaded, setCommentsLoaded] = useState(false);
 
-    let contractAddress: string = "0xE7f8b4e9503792Add4101261157e616bFE29d400";
+    let contractAddress: string = "0xBeA2D25214035970F192dF8011702E17F83EfC5a";
 
     if (window.ethereum) {
         window.web3 = new Web3(window.ethereum);
@@ -119,7 +119,6 @@ export default function Comments({ address }: CommentsProps) {
 
     useEffect(() => {
         if(!commentsLoaded){
-            (async () => {
                 let loadedComments: any[] = [];
                 const commentsAmount =  await contract.methods.getCommentCount().call();
     
@@ -145,7 +144,7 @@ export default function Comments({ address }: CommentsProps) {
                         console.log(error)
                     }
                 })
-            })();
+            }
         }
     })
 
