@@ -97,19 +97,24 @@ export default function Comments({ address }: CommentsProps) {
     }
 
     const tipComment = async (id: number) => {
-        setCommentsLoaded(false);  
-        await contract.methods.tipComment(id)
-            .send({from: address, value: web3.utils.toWei("1", "ether"), gas: 3000000})
-            .on("confirmation", () => {
-                console.log('confirmed')
-            })
-            .on("receipt", (receipt: object) => {
-                console.log(receipt)
+        try {
+            await contract.methods.tipComment(id, balance)
+                .send({from: address, gas: 3000000})
+                .on("confirmation", () => {
+                    console.log('confirmed')
+                })
+                .on("receipt", (receipt: object) => {
+                    console.log(receipt)
+    
+                })
+                .on("error", (error: Error) => {
+                    console.error(error)
+                })
+                setCommentsLoaded(false); 
+            } catch (error:any) {
+                console.log("You have already tipped")
+            }
 
-            })
-            .on("error", (error: Error) => {
-                console.error(error)
-            })
     }
 
 
@@ -119,7 +124,7 @@ export default function Comments({ address }: CommentsProps) {
     // }, [commentsLoaded])
 
     useEffect(() => {
-        // Pobranie balansu
+        // Fetching balance
         web3.eth.getBalance(address).then((value: string) => {
             setBalance(value);
         })
@@ -139,15 +144,14 @@ export default function Comments({ address }: CommentsProps) {
                         
                         if (pastEvent.event === "commentTipped") {
                             loadedComments[Number(pastEvent.returnValues.id)].tips += Number(web3.utils.fromWei(pastEvent.returnValues.amount, 'ether'))
-                        } else {
-                            console.log('Event type not found ')
+                            setCommentsLoaded(false); 
                         }
 
                         if(loadedComments.length >= commentsAmount) {
                             setComments(loadedComments);
                             setCommentsLoaded(true);  
                         }
-                        
+
                     } else {
                         console.log(error)
                     }
