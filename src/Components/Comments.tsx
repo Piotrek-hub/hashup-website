@@ -63,6 +63,7 @@ export default function Comments({ address }: CommentsProps) {
     const [comment, setComment] = useState('');
     const [comments, setComments] = useState<Array<any>>([]);
     const [commentsLoaded, setCommentsLoaded] = useState(false);
+    const [balance, setBalance ] = useState('');
 
     let contractAddress: string = "0xf78A6Bf5D7773e0185fcCEE95689A56073E12BBb";
 
@@ -118,9 +119,13 @@ export default function Comments({ address }: CommentsProps) {
     // }, [commentsLoaded])
 
     useEffect(() => {
+        // Pobranie balansu
+        web3.eth.getBalance(address).then((value: string) => {
+            setBalance(value);
+        })
+
         if(!commentsLoaded){
             (async () => {
-            
                 let loadedComments: any[] = [];
                 const commentsAmount =  await contract.methods.getCommentCount().call();
     
@@ -142,6 +147,7 @@ export default function Comments({ address }: CommentsProps) {
                             setComments(loadedComments);
                             setCommentsLoaded(true);  
                         }
+                        
                     } else {
                         console.log(error)
                     }
@@ -154,7 +160,6 @@ export default function Comments({ address }: CommentsProps) {
     }, []);
 
     return (
-        
         <CommentsContainer>
             
             <CommentsSearchBar>
