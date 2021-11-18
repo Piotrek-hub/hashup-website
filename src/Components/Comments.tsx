@@ -65,7 +65,7 @@ export default function Comments({ address }: CommentsProps) {
     const [commentsLoaded, setCommentsLoaded] = useState(false);
     const [balance, setBalance ] = useState('');
 
-    let contractAddress: string = "0xf78A6Bf5D7773e0185fcCEE95689A56073E12BBb";
+    let contractAddress: string = "0x624cF32746a1572CF4D369c9A1e02aF8Be228659";
 
     if (window.ethereum) {
         window.web3 = new Web3(window.ethereum);
@@ -84,7 +84,7 @@ export default function Comments({ address }: CommentsProps) {
     const createComment = async () => {
 
         if (typeof web3 !== "undefined" && comment.length > 0) {
-            await contract.methods.addComment(comment)
+            await contract.methods.addComment(comment, balance)
                 .send({from: address, gas: 300000})
                 .on("receipt", (receipt: object) => {
                     console.log("Comment created")

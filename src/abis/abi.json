@@ -55,6 +55,11 @@
 				"internalType": "string",
 				"name": "_content",
 				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_value",
+				"type": "uint256"
 			}
 		],
 		"name": "addComment",
