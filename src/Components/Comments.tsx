@@ -124,6 +124,19 @@ export default function Comments({ address }: CommentsProps) {
     // }, [commentsLoaded])
 
     useEffect(() => {
+        // Subscription 
+        var subscription = web3.eth.subscribe('syncing', function(error: Error, result: any){
+            if (!error)
+                console.log("SUBSCRIPTION INFO: ", result);
+        });
+        
+        // unsubscribes the subscription
+        subscription.unsubscribe(function(error: Error, success: any){
+            if(success)
+                console.log('Successfully unsubscribed!');
+        });
+
+
         // Fetching balance
         web3.eth.getBalance(address).then((value: string) => {
             setBalance(value);
