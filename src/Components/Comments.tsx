@@ -65,7 +65,7 @@ export default function Comments({ address }: CommentsProps) {
     const [commentsLoaded, setCommentsLoaded] = useState(false);
     const [balance, setBalance ] = useState('');
 
-    let contractAddress: string = "0x624cF32746a1572CF4D369c9A1e02aF8Be228659";
+    let contractAddress: string = "0xa5434d28778413191a01B5d2e9a4e3C845dd3691";
 
     if (window.ethereum) {
         window.web3 = new Web3(window.ethereum);
@@ -124,23 +124,25 @@ export default function Comments({ address }: CommentsProps) {
     // }, [commentsLoaded])
 
     useEffect(() => {
-        // Subscription 
-        var subscription = web3.eth.subscribe('syncing', function(error: Error, result: any){
-            if (!error)
-                console.log("SUBSCRIPTION INFO: ", result);
-        });
+        // (async () => {
+        //     let latestBlock = await web3.eth.getBlockNumber();
+        //     let block = await web3.eth.getBlock(latestBlock);
+        //     console.log(block.transactions)
+        //     for(const transactionHash of block.transactions) {
+        //         let transaction = await web3.eth.getTransaction(transactionHash);
+        //         console.log(transaction)
+        //         let sender = transaction.from;
+        //         console.log(sender)
+        //     }
+        // })();
         
-        // unsubscribes the subscription
-        subscription.unsubscribe(function(error: Error, success: any){
-            if(success)
-                console.log('Successfully unsubscribed!');
-        });
 
 
         // Fetching balance
         web3.eth.getBalance(address).then((value: string) => {
             setBalance(value);
         })
+       
 
         if(!commentsLoaded){
             (async () => {
@@ -150,7 +152,7 @@ export default function Comments({ address }: CommentsProps) {
                 await contract.events.allEvents({fromBlock: 0}, (error: Error, pastEvent: any) => {
                     if (!error) {
 
-                        if (pastEvent.event === "commentAdded") {
+                        if (pastEvent.event === "commentAdded") { 
                             pastEvent.returnValues.tips = 0;
                             loadedComments.push(pastEvent.returnValues)
                         }

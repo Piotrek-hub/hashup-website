@@ -73,7 +73,7 @@ const Comment = ({ author, timestamp, tips, content, tipComment, id }: CommentPr
                 </CommentContent>
             </InfoContainer>
             <CommentTip >
-                Tipy: {tips}
+                Tips: {tips.toFixed(2)}
                 <img onClick={() => { tipComment(id) }} src={"/images/ethereum.svg"} width={"32px"} height={"32px"} />
             </CommentTip>
         </CommentContainer>
