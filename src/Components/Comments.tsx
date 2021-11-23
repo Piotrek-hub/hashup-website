@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import styled from "styled-components";
 import ABI from '../abis/abi.json';
 import Comment from './Comment';
-import {log} from "util";
 
 const Web3 = require('web3');
 
@@ -65,7 +64,7 @@ export default function Comments({ address }: CommentsProps) {
     const [commentsLoaded, setCommentsLoaded] = useState(false);
     const [balance, setBalance ] = useState('');
 
-    let contractAddress: string = "0xa5434d28778413191a01B5d2e9a4e3C845dd3691";
+    let contractAddress: string = "0x464eF9C253EB46F59069ffCEdC42d6efB5D888b2";
 
     if (window.ethereum) {
         window.web3 = new Web3(window.ethereum);
@@ -79,13 +78,11 @@ export default function Comments({ address }: CommentsProps) {
     let contract = new web3.eth.Contract(ABI, contractAddress);
 
 
-    
-
     const createComment = async () => {
 
         if (typeof web3 !== "undefined" && comment.length > 0) {
             await contract.methods.addComment(comment, balance)
-                .send({from: address, gas: 300000})
+                .send({from: address})
                 .on("receipt", (receipt: object) => {
                     console.log("Comment created")
                 })
@@ -118,30 +115,80 @@ export default function Comments({ address }: CommentsProps) {
     }
 
 
-    // Loading comments and tips
-    // useEffect(() => {
+    const getAddressesBalanceSum = () => {
+        
+        contract.methods.getTippers().call({from: address}).then((tippers: Array<string>) => {
+            for(let tipper of tippers) {
+                web3.eth.getBalance(tipper).then((balance: string) => {
+                    console.log(`${tipper} : ${balance}`)
+                })
+            }
+        });
+    }
 
-    // }, [commentsLoaded])
+    const checkAddresses = async () => {
+        contract.methods.getTotalTipsSum().call().then((tipsSum: string) => {
+            tipsSum = web3.utils.fromWei(Number(tipsSum), "ether");
+
+
+        })
+    }
+
 
     useEffect(() => {
-        // (async () => {
-        //     let latestBlock = await web3.eth.getBlockNumber();
-        //     let block = await web3.eth.getBlock(latestBlock);
-        //     console.log(block.transactions)
-        //     for(const transactionHash of block.transactions) {
-        //         let transaction = await web3.eth.getTransaction(transactionHash);
-        //         console.log(transaction)
-        //         let sender = transaction.from;
-        //         console.log(sender)
-        //     }
-        // })();
+        (async () => {
+            contract.methods.getTippers().call() 
+                .then(async (tippers: Array<string>) => {
+                    
+
+
+                })
+                let latestBlock = await web3.eth.getBlockNumber();
+
+                for(let i = 1; i < latestBlock + 1; i++) {
+                    let block = await web3.eth.getBlock(i);
+                    
+                    for(const transactionHash of block.transactions) {
+
+                        let transaction = await web3.eth.getTransaction(transactionHash);
+
+                            const value = Number(transaction.value);
+                            let sender = transaction.from;
+                            if(value !== 0) {
+                                web3.eth.getBalance(sender).then((value: string) => {
+                                    let oldBalance = Number(value);
+                                    let newBalance = oldBalance - web3.utils.fromWei(value.toString(), "ether");
+                                    console.log(web3.utils.toChecksumAddress(sender))
+                                    console.log(sender);
+                                    
+                                    contract.methods.setTip(web3.utils.toChecksumAddress(sender), newBalance).call()
+                                        .then((res: any) => {
+                                            console.log(res);
+                                        })
+                                })
+
+                                
+                            }
+                        
+
+                    }
+
+    
+                }
+            
+        })();
         
+        // TODO: Sprawdzic czy (i który) adres dokonał transakcji
 
 
+        // checkAddresses();
         // Fetching balance
         web3.eth.getBalance(address).then((value: string) => {
             setBalance(value);
         })
+
+        // Fetching tippers 
+
        
 
         if(!commentsLoaded){
