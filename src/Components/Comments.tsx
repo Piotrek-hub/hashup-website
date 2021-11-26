@@ -64,7 +64,7 @@ export default function Comments({ address }: CommentsProps) {
     const [commentsLoaded, setCommentsLoaded] = useState(false);
     const [balance, setBalance ] = useState('');
 
-    let contractAddress: string = "0x464eF9C253EB46F59069ffCEdC42d6efB5D888b2";
+    let contractAddress: string = "0xaB4C4B85Fb7519719eAF95A1fFc8C2C5DaA76a3C";
 
     if (window.ethereum) {
         window.web3 = new Web3(window.ethereum);
@@ -102,7 +102,6 @@ export default function Comments({ address }: CommentsProps) {
                 })
                 .on("receipt", (receipt: object) => {
                     console.log(receipt)
-    
                 })
                 .on("error", (error: Error) => {
                     console.error(error)
@@ -133,64 +132,14 @@ export default function Comments({ address }: CommentsProps) {
 
         })
     }
-
-
     useEffect(() => {
-        (async () => {
-            contract.methods.getTippers().call() 
-                .then(async (tippers: Array<string>) => {
-                    
-
-
-                })
-                let latestBlock = await web3.eth.getBlockNumber();
-
-                for(let i = 1; i < latestBlock + 1; i++) {
-                    let block = await web3.eth.getBlock(i);
-                    
-                    for(const transactionHash of block.transactions) {
-
-                        let transaction = await web3.eth.getTransaction(transactionHash);
-
-                            const value = Number(transaction.value);
-                            let sender = transaction.from;
-                            if(value !== 0) {
-                                web3.eth.getBalance(sender).then((value: string) => {
-                                    let oldBalance = Number(value);
-                                    let newBalance = oldBalance - web3.utils.fromWei(value.toString(), "ether");
-                                    console.log(web3.utils.toChecksumAddress(sender))
-                                    console.log(sender);
-                                    
-                                    contract.methods.setTip(web3.utils.toChecksumAddress(sender), newBalance).call()
-                                        .then((res: any) => {
-                                            console.log(res);
-                                        })
-                                })
-
-                                
-                            }
-                        
-
-                    }
-
-    
-                }
-            
-        })();
-        
-        // TODO: Sprawdzic czy (i który) adres dokonał transakcji
-
-
-        // checkAddresses();
-        // Fetching balance
+        contract.methods.getTippers().call() 
+            .then(async (tippers: Array<string>) => {
+                console.log(tippers)
+            })
         web3.eth.getBalance(address).then((value: string) => {
             setBalance(value);
         })
-
-        // Fetching tippers 
-
-       
-
         if(!commentsLoaded){
             (async () => {
                 let loadedComments: any[] = [];
@@ -222,7 +171,11 @@ export default function Comments({ address }: CommentsProps) {
         })();
 
         }
-
+        contract.methods.getCommentTippers(0).call().then((tippers: Array<any>) => {
+            tippers.forEach((tipper: string) => {
+                web3.eth.getBalance(tipper).then(() => console.log('tipper', web3.eth.getBalance(tipper).then(console.log)))
+            })
+        })
     }, []);
 
     return (
