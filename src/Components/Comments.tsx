@@ -64,8 +64,9 @@ export default function Comments({ address }: CommentsProps) {
     const [commentsLoaded, setCommentsLoaded] = useState(false);
     const [balance, setBalance ] = useState('');
 
-    let contractAddress: string = "0x99C09525AB86Cc8cFC0FB87226AFca6031f91E8c";
+    let contractAddress: string = "0x31c6a88A0F7CBB301F2602301C4c8D33b4596EDB";
 
+    
     if (window.ethereum) {
         window.web3 = new Web3(window.ethereum);
     } else if (window.web3) {
@@ -73,22 +74,31 @@ export default function Comments({ address }: CommentsProps) {
     } else {
         window.alert('Non-Ethereum browser detected. You should consider trying MetaMask!')
     }
-
+    
     const web3 = window.web3
+
+    let BN = web3.utils.BN;
     let contract = new web3.eth.Contract(ABI, contractAddress);
 
 
     const createComment = async () => {
 
         if (typeof web3 !== "undefined" && comment.length > 0) {
-            await contract.methods.addComment(comment, balance)
-                .send({from: address})
-                .on("receipt", (receipt: object) => {
-                    console.log("Comment created")
-                })
-                .on("error", (error: Error) => {
-                    console.error(error)
-                })
+            try {
+                console.log(balance)
+                await contract.methods.addComment(comment, balance)
+                    .send({from: address})
+                    .on("receipt", (receipt: object) => {
+                        console.log(receipt);
+                        console.log("Comment created")
+                    })
+                    .on("error", (error: Error) => {
+                        console.error(error)
+                    })
+            }catch(e) {
+                console.log(e);
+            }
+
         }
         setCommentsLoaded(false);
     }
@@ -153,18 +163,15 @@ export default function Comments({ address }: CommentsProps) {
                         }
                         
                         if (pastEvent.event === "commentTipped") {
-                            var BN = web3.utils.BN;
-                            console.log('Comment Tipped ', pastEvent.returnValues.amount);
+                            // console.log(pastEvent);
                             
                             loadedComments[Number(pastEvent.returnValues.id)].tips = Number(new BN(pastEvent.returnValues.amount).toString());
                             setCommentsLoaded(false); 
                         }
 
                         if (pastEvent.event === "commentUnTipped") {
-                            var BN = web3.utils.BN;
+                            console.log(pastEvent);
 
-                            console.log(pastEvent.returnValues.unTippedAmount);
-                            
                             loadedComments[Number(pastEvent.returnValues.id)].tips = Number(new BN(pastEvent.returnValues.unTippedAmount).toString());
                             setCommentsLoaded(false); 
                             // console.log(`commment id: ${Number(pastEvent.returnValues.id)}, untipped amount: ${Number(web3.utils.fromWei(pastEvent.returnValues.unTippedAmount, 'ether'))}`);
@@ -196,7 +203,7 @@ export default function Comments({ address }: CommentsProps) {
             </CommentsSearchBar>
             {comments.map((comment, key) => (
                 <>
-                    <Comment content={comment.content} author={comment.author} tips={Number(comment.tips)} timestamp={comment.timestamp} key={key} id={key} tipComment={tipComment} />
+                    <Comment content={comment.content} author={comment.author} tips={Number(web3.utils.fromWei(comment.tips.toString(), 'ether') )} timestamp={comment.timestamp} key={key} id={key} tipComment={tipComment} />
                 </>
             ))}
         </CommentsContainer>

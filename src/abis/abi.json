@@ -326,24 +326,6 @@
 	{
 		"inputs": [
 			{
-				"internalType": "address",
-				"name": "_tipper",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_balance",
-				"type": "uint256"
-			}
-		],
-		"name": "setTip",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
 				"internalType": "uint256",
 				"name": "_id",
 				"type": "uint256"
