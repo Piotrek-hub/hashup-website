@@ -64,7 +64,7 @@ export default function Comments({ address }: CommentsProps) {
     const [commentsLoaded, setCommentsLoaded] = useState(false);
     const [balance, setBalance ] = useState('');
 
-    let contractAddress: string = "0xaB4C4B85Fb7519719eAF95A1fFc8C2C5DaA76a3C";
+    let contractAddress: string = "0x99C09525AB86Cc8cFC0FB87226AFca6031f91E8c";
 
     if (window.ethereum) {
         window.web3 = new Web3(window.ethereum);
@@ -102,6 +102,7 @@ export default function Comments({ address }: CommentsProps) {
                 })
                 .on("receipt", (receipt: object) => {
                     console.log(receipt)
+    
                 })
                 .on("error", (error: Error) => {
                     console.error(error)
@@ -114,32 +115,30 @@ export default function Comments({ address }: CommentsProps) {
     }
 
 
-    const getAddressesBalanceSum = () => {
-        
-        contract.methods.getTippers().call({from: address}).then((tippers: Array<string>) => {
-            for(let tipper of tippers) {
-                web3.eth.getBalance(tipper).then((balance: string) => {
-                    console.log(`${tipper} : ${balance}`)
-                })
-            }
-        });
-    }
 
-    const checkAddresses = async () => {
-        contract.methods.getTotalTipsSum().call().then((tipsSum: string) => {
-            tipsSum = web3.utils.fromWei(Number(tipsSum), "ether");
-
-
-        })
-    }
     useEffect(() => {
-        contract.methods.getTippers().call() 
-            .then(async (tippers: Array<string>) => {
-                console.log(tippers)
-            })
+        (async () => {
+            let tippersArray: any = [];
+            contract.methods.getTippers().call() 
+                .then((tippers: Array<string>) => {
+                    tippers.forEach((tipper: string) => {
+                        web3.eth.getBalance(tipper).then((balance: String ) => {
+                                tippersArray.push({address: tipper, balance: Number(balance)})
+                            }
+                        )
+                    })
+                    tippersArray.forEach((tipper: any) => {
+                        contract.methods.setTips()
+                    })
+                })
+            
+        })();
+        
+        // Fetching balance
         web3.eth.getBalance(address).then((value: string) => {
             setBalance(value);
         })
+
         if(!commentsLoaded){
             (async () => {
                 let loadedComments: any[] = [];
@@ -154,8 +153,21 @@ export default function Comments({ address }: CommentsProps) {
                         }
                         
                         if (pastEvent.event === "commentTipped") {
-                            loadedComments[Number(pastEvent.returnValues.id)].tips += Number(web3.utils.fromWei(pastEvent.returnValues.amount, 'ether'))
+                            var BN = web3.utils.BN;
+                            console.log('Comment Tipped ', pastEvent.returnValues.amount);
+                            
+                            loadedComments[Number(pastEvent.returnValues.id)].tips = Number(new BN(pastEvent.returnValues.amount).toString());
                             setCommentsLoaded(false); 
+                        }
+
+                        if (pastEvent.event === "commentUnTipped") {
+                            var BN = web3.utils.BN;
+
+                            console.log(pastEvent.returnValues.unTippedAmount);
+                            
+                            loadedComments[Number(pastEvent.returnValues.id)].tips = Number(new BN(pastEvent.returnValues.unTippedAmount).toString());
+                            setCommentsLoaded(false); 
+                            // console.log(`commment id: ${Number(pastEvent.returnValues.id)}, untipped amount: ${Number(web3.utils.fromWei(pastEvent.returnValues.unTippedAmount, 'ether'))}`);
                         }
 
                         if(loadedComments.length >= commentsAmount) {
@@ -171,11 +183,7 @@ export default function Comments({ address }: CommentsProps) {
         })();
 
         }
-        contract.methods.getCommentTippers(0).call().then((tippers: Array<any>) => {
-            tippers.forEach((tipper: string) => {
-                web3.eth.getBalance(tipper).then(() => console.log('tipper', web3.eth.getBalance(tipper).then(console.log)))
-            })
-        })
+
     }, []);
 
     return (

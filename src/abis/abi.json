@@ -61,8 +61,14 @@
 			{
 				"indexed": false,
 				"internalType": "uint256",
-				"name": "amount",
+				"name": "unTippedAmount",
 				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "tipper",
+				"type": "address"
 			}
 		],
 		"name": "commentUnTipped",
@@ -182,6 +188,49 @@
 				"internalType": "uint256",
 				"name": "_id",
 				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "_tipper",
+				"type": "address"
+			}
+		],
+		"name": "getAddressToTips",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_addr",
+				"type": "address"
+			}
+		],
+		"name": "getBalance",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_id",
+				"type": "uint256"
 			}
 		],
 		"name": "getCommentById",
@@ -269,15 +318,9 @@
 	},
 	{
 		"inputs": [],
-		"name": "getTotalTipsSum",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
+		"name": "pay",
+		"outputs": [],
+		"stateMutability": "payable",
 		"type": "function"
 	},
 	{
@@ -286,6 +329,11 @@
 				"internalType": "address",
 				"name": "_tipper",
 				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_balance",
+				"type": "uint256"
 			}
 		],
 		"name": "setTip",
@@ -330,19 +378,6 @@
 				"internalType": "bool",
 				"name": "",
 				"type": "bool"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "tipsSum",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
 			}
 		],
 		"stateMutability": "view",
