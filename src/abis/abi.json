@@ -46,32 +46,7 @@
 				"type": "uint256"
 			}
 		],
-		"name": "commentTipped",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "id",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "unTippedAmount",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "tipper",
-				"type": "address"
-			}
-		],
-		"name": "commentUnTipped",
+		"name": "tipped",
 		"type": "event"
 	},
 	{

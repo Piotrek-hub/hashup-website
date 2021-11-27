@@ -64,7 +64,7 @@ export default function Comments({ address }: CommentsProps) {
     const [commentsLoaded, setCommentsLoaded] = useState(false);
     const [balance, setBalance ] = useState('');
 
-    let contractAddress: string = "0x31c6a88A0F7CBB301F2602301C4c8D33b4596EDB";
+    let contractAddress: string = "0xecCe000ba85AEc1bC0Cd70ff20ff6637D6112507";
 
     
     if (window.ethereum) {
@@ -162,19 +162,16 @@ export default function Comments({ address }: CommentsProps) {
                             loadedComments.push(pastEvent.returnValues)
                         }
                         
-                        if (pastEvent.event === "commentTipped") {
-                            // console.log(pastEvent);
+                        // if (pastEvent.event === "commentTipped") {
+                        //     // console.log(pastEvent);
                             
+                        //     loadedComments[Number(pastEvent.returnValues.id)].tips = Number(new BN(pastEvent.returnValues.amount).toString());
+                        //     setCommentsLoaded(false); 
+                        // }
+
+                        if (pastEvent.event === "tipped") {
                             loadedComments[Number(pastEvent.returnValues.id)].tips = Number(new BN(pastEvent.returnValues.amount).toString());
                             setCommentsLoaded(false); 
-                        }
-
-                        if (pastEvent.event === "commentUnTipped") {
-                            console.log(pastEvent);
-
-                            loadedComments[Number(pastEvent.returnValues.id)].tips = Number(new BN(pastEvent.returnValues.unTippedAmount).toString());
-                            setCommentsLoaded(false); 
-                            // console.log(`commment id: ${Number(pastEvent.returnValues.id)}, untipped amount: ${Number(web3.utils.fromWei(pastEvent.returnValues.unTippedAmount, 'ether'))}`);
                         }
 
                         if(loadedComments.length >= commentsAmount) {
