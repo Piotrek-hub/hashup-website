@@ -41,9 +41,9 @@
 			},
 			{
 				"indexed": false,
-				"internalType": "uint256",
+				"internalType": "int256",
 				"name": "amount",
-				"type": "uint256"
+				"type": "int256"
 			}
 		],
 		"name": "tipped",
@@ -81,6 +81,30 @@
 			}
 		],
 		"name": "addressToTips",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "addressToUnTips",
 		"outputs": [
 			{
 				"internalType": "uint256",
@@ -141,6 +165,11 @@
 			{
 				"internalType": "uint256",
 				"name": "tips",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "untips",
 				"type": "uint256"
 			},
 			{
@@ -223,6 +252,11 @@
 						"type": "uint256"
 					},
 					{
+						"internalType": "uint256",
+						"name": "untips",
+						"type": "uint256"
+					},
+					{
 						"internalType": "string",
 						"name": "content",
 						"type": "string"
@@ -235,6 +269,11 @@
 					{
 						"internalType": "address[]",
 						"name": "tippers",
+						"type": "address[]"
+					},
+					{
+						"internalType": "address[]",
+						"name": "unTippers",
 						"type": "address[]"
 					}
 				],
@@ -292,6 +331,30 @@
 		"type": "function"
 	},
 	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_id",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "i",
+				"type": "uint256"
+			}
+		],
+		"name": "getUntippers",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
 		"inputs": [],
 		"name": "pay",
 		"outputs": [],
@@ -330,6 +393,48 @@
 			}
 		],
 		"name": "tippers",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_id",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_amount",
+				"type": "uint256"
+			}
+		],
+		"name": "unTipComment",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "unTippers",
 		"outputs": [
 			{
 				"internalType": "bool",

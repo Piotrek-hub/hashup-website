@@ -24,6 +24,7 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  padding-left: 20px;
 
 ` 
 
@@ -36,9 +37,16 @@ const TipContainer = styled.div`
 
 const ProfileImageContainer = styled.div`
   height: 100%;
-  width: 20%;
+  width: auto;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  
+  p {
+    color: #646464;
+    font-weight: 300;
+  }
 `
 
 const ProfileImage = styled.img`
@@ -52,6 +60,7 @@ const CommentAuthor = styled.span`
   span {
     color: #646464;
     font-weight: 300;
+    padding-left: 5px;
   }
 `
 const CommentContent = styled.span`
@@ -79,29 +88,42 @@ interface CommentProps {
     tips: Number,
     content: string,
     tipComment: (id: any) => any,
+    unTipComment: (id: any) => any,
     id: number,
 }
 
-const Comment = ({ author, timestamp, tips, content, tipComment, id }: CommentProps) => {
+const Comment = ({ author, timestamp, tips, content, tipComment, unTipComment, id }: CommentProps) => {
+  const [refreshed, setRefreshed ] = useState(false);
+
+  setInterval(() => {
+    if(refreshed == false) {
+      setRefreshed(true);
+      console.log('refreshed');
+      
+    }
+    setRefreshed(false);
+    
+  }, 59000);
   return (
       <CommentContainer>
           <ProfileImageContainer>
               <ProfileImage src={`https://avatars.dicebear.com/api/personas/${author.toLowerCase()}.svg`} />
+              <p>{tips.toFixed(1)}</p>
           </ProfileImageContainer>
           <Wrapper>
             <InfoContainer>
                 <CommentAuthor>
-                  {copyAddress(author)} {moment(new Date(Number(timestamp) * 1000)).fromNow(true)}
+                  {copyAddress(author)} <span>{moment(new Date(Number(timestamp) * 1000)).fromNow(true)}</span>
                 </CommentAuthor>
                 <CommentContent>
-                    {content} //Tips: {tips.toFixed(0)}
+                    {content} 
                 </CommentContent>
             </InfoContainer>
             <TipContainer>
               <CommentTip  onClick={() => { tipComment(id) }}>
                   <img src={"/images/thumbUp.svg"} width={"18px"} height={"18px"} />
               </CommentTip>
-              <CommentTip  onClick={() => { tipComment(id) }}>
+              <CommentTip  onClick={() => { unTipComment(id) }}>
                   <img src={"/images/thumbDown.svg"} width={"18px"} height={"18px"} />
               </CommentTip>
               <CommentTip>

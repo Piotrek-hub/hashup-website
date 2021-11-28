@@ -2,18 +2,74 @@ import { useState, useEffect } from "react";
 import styled from "styled-components";
 import ABI from '../abis/abi.json';
 import Comment from './Comment';
-
 const Web3 = require('web3');
 
+
 const CommentsContainer = styled.div`   
-width: 30%;
-  min-height: 90vh;
+  width: 30%;
+  min-height: 100vh;
   display: flex;
   align-items: center;
   flex-direction: column;
   border: 2px solid #e1ebf6;
   border-top: 0;
   border-bottom: 0;
+  position: relative;
+`
+
+const SortWrapper = styled.div`
+    position: absolute;
+    width: 100px;
+    height: 170px;
+    right: -100px;
+    top: 0;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+`
+
+const SortByTime = styled.div`
+    position: relative;
+    p {
+        position: absolute;
+        opacity: 0;
+        font-size: 16px;
+        width: 200px;
+        padding: 0;
+        margin: 0;
+        left: 40px;
+        top: 15%;
+        font-weight: 700;
+        z-index: -1;
+        color: #1DA1F2;
+        transition: opacity 0.5s, transform 0.5s;
+    }
+
+    &:hover p {
+        transform: translateX(20px);
+        opacity: 1;
+    }
+`
+
+const TipSort = styled.img`
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    transform: rotate(180deg);
+`
+
+const TimeSort = styled.img`
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+`
+
+const NormalSort = styled.img`
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    transform: rotate(90deg);
 `
 
 const CommentsSearchBar = styled.div`
@@ -35,6 +91,7 @@ const InputComment = styled.input`
   font-size: 1.25rem;
   white-space: pre-wrap;
   font-weight: 200;
+  width: 95%;
 `
 const AddCommentButton = styled.button`
   border: none;
@@ -46,29 +103,31 @@ const AddCommentButton = styled.button`
   padding: 10px 26px;
   background: #1DA1F2;
   color: #fff;
-  margin-left: auto;
+  margin-left: 10px;
+  width: auto;
   margin-right: 10px;
-
+    transition: all .5s;
   &:hover {
     background: rgb(26, 140, 216);
     color: #fff;
   }
 `
 
+
+
 interface CommentsProps {
     address: string,
 }
 
 export default function Comments({ address }: CommentsProps) {
-
     const [comment, setComment] = useState('');
     const [comments, setComments] = useState<Array<any>>([]);
+    const [oldComments, setOldComments] = useState<Array<any>>([]);
+    const [sortedByTip, setSortedByTip] = useState(false)
+    const [sortedByTime, setSortedByTime] = useState(false)
     const [commentsLoaded, setCommentsLoaded] = useState(false);
     const [balance, setBalance ] = useState('');
-
-    let contractAddress: string = "0x97915c82b9073F67144D14Fa4B60c81d7930F65a";
-
-    
+    let contractAddress: string = "0xA43f58c899C31Ee8135fBEdAe5F896Add14958E1";
     if (window.ethereum) {
         window.web3 = new Web3(window.ethereum);
     } else if (window.web3) {
@@ -76,19 +135,15 @@ export default function Comments({ address }: CommentsProps) {
     } else {
         window.alert('Non-Ethereum browser detected. You should consider trying MetaMask!')
     }
-    
     const web3 = window.web3
-
     let BN = web3.utils.BN;
     let contract = new web3.eth.Contract(ABI, contractAddress);
-
-
     const createComment = async () => {
 
         if (typeof web3 !== "undefined" && comment.length > 0) {
             try {
                 console.log(balance)
-                await contract.methods.addComment(comment, balance)
+                await contract.methods.addComment(comment, String(Number(balance) - web3.utils.fromWei("3000000", 'ether')))
                     .send({from: address})
                     .on("receipt", (receipt: object) => {
                         console.log(receipt);
@@ -107,7 +162,7 @@ export default function Comments({ address }: CommentsProps) {
 
     const tipComment = async (id: number) => {
         try {
-            await contract.methods.tipComment(id, balance)
+            await contract.methods.tipComment(id, String(Number(balance) - web3.utils.fromWei("3000000", 'ether')))
                 .send({from: address, gas: 3000000})
                 .on("confirmation", () => {
                     console.log('confirmed')
@@ -123,11 +178,26 @@ export default function Comments({ address }: CommentsProps) {
             } catch (error:any) {
                 console.log("You have already tipped")
             }
-
     }
+    const unTipComment = async (id: number) => {        
+        try {
+            await contract.methods.unTipComment(id, String(Number(balance) - web3.utils.fromWei("3000000", 'ether')))
+                .send({from: address, gas: 3000000})
+                .on("confirmation", () => {
+                    console.log('confirmed')
+                })
+                .on("receipt", (receipt: object) => {
+                    console.log(receipt)
 
-
-
+                })
+                .on("error", (error: Error) => {
+                    console.error(error)
+                })
+                setCommentsLoaded(false); 
+            } catch (error:any) {
+                console.log("You have already tipped")
+        }
+    }
     useEffect(() => {
         (async () => {
             let tippersArray: any = [];
@@ -178,6 +248,7 @@ export default function Comments({ address }: CommentsProps) {
 
                         if(loadedComments.length >= commentsAmount) {
                             setComments(loadedComments);
+                            setOldComments(loadedComments);
                             setCommentsLoaded(true);  
                         }
 
@@ -191,10 +262,54 @@ export default function Comments({ address }: CommentsProps) {
         }
 
     }, []);
+    const sortByTip = () => { 
+        setSortedByTip(!sortedByTip)
+        if(sortedByTip) {
+            let sortedArr = [...comments].sort((a, b) => a.tips > b.tips && 1 || -1)
+            setComments(sortedArr)
+        } else {
+            let sortedArr = [...comments].sort((a, b) => a.tips < b.tips && 1 || -1)
+            setComments(sortedArr) 
+        }
+    }
+
+    const sortByTime = () => {
+        setSortedByTime(!sortedByTime)
+        if(sortedByTime) {
+            let sortedArr = [...oldComments].sort((a, b) => a.timestamp > b.timestamp && 1 || -1)
+            setComments(sortedArr)
+        } else {
+            let sortedArr = [...oldComments].sort((a, b) => a.timestamp < b.timestamp && 1 || -1)
+            setComments(sortedArr) 
+        }
+    }
+
+    const sortByNormal = () => {
+        setComments(oldComments) 
+    }
 
     return (
         <CommentsContainer>
-            
+            <SortWrapper>
+                <SortByTime onClick={sortByNormal}>
+                    <div>
+                        <NormalSort src="/images/sortNormal.svg" alt="" />
+                    </div>
+                    <p>Sort by default</p>
+                </SortByTime>
+                <SortByTime>
+                    <div>
+                        <TimeSort src="/images/sortByTime.svg" alt="" onClick={sortByTime}/>
+                    </div>
+                    <p>Sort by time</p>
+                </SortByTime>
+                <SortByTime onClick={sortByTip}>
+                    <div>
+                        <TipSort src="/images/sortByTips.svg" alt="" />
+                    </div>
+                    <p>Sort by tips</p>
+                </SortByTime>
+            </SortWrapper>
             <CommentsSearchBar>
                 <ProfileImage src={`https://avatars.dicebear.com/api/personas/${address}.svg`} />
                 <InputComment onChange={(event: any) => setComment(event.target.value)} placeholder="What's happening " type="text" defaultValue={comment} />
@@ -202,11 +317,10 @@ export default function Comments({ address }: CommentsProps) {
             </CommentsSearchBar>
             {comments.map((comment, key) => (
                 <>
-                    <Comment content={comment.content} author={comment.author} tips={Number(web3.utils.fromWei(comment.tips.toString(), 'ether') )} timestamp={comment.timestamp} key={key} id={key} tipComment={tipComment} />
+                    <Comment content={comment.content} author={comment.author} tips={Number(web3.utils.fromWei(comment.tips.toString(), 'ether') )} timestamp={comment.timestamp} key={key} id={key} tipComment={tipComment} unTipComment={unTipComment}/>
                 </>
             ))}
         </CommentsContainer>
     );
 
 }
-
