@@ -5,22 +5,24 @@ import Comment from './Comment';
 
 const Web3 = require('web3');
 
-const CommentsContainer = styled.div`
-  width: 30%;
-  min-height: 85vh;
+const CommentsContainer = styled.div`   
+width: 30%;
+  min-height: 90vh;
   display: flex;
   align-items: center;
   flex-direction: column;
-  border: 2px solid #dee2e6;
-  border-radius: 15px;
+  border: 2px solid #e1ebf6;
+  border-top: 0;
+  border-bottom: 0;
 `
+
 const CommentsSearchBar = styled.div`
   display: flex;
   align-items: center;
   justify-content: flex-start;
   padding: 10px 0;
   width: 100%;
-  border-bottom: 2px solid #dee2e6;
+  border-bottom: 2px solid #e1ebf6;
 `
 const ProfileImage = styled.img`
   width: 60px;

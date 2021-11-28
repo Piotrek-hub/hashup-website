@@ -1,43 +1,67 @@
 import styled from "styled-components";
-import { useState } from "react";
 import { copyAddress } from './copyAddress'
+import moment from 'moment';
+import { useEffect, useState } from "react";
 
 const CommentContainer = styled.div`
-
   display: flex;
   align-items: center;
   justify-content: flex-start;
   width: 100%;
-  border-bottom: 2px solid #dee2e6;
-  padding: 5px 0;
+  border-bottom: 2px solid #e1ebf6;
+  padding: 10px 0;
 `
 const InfoContainer = styled.div`
   display: flex;
   align-items: flex-start;
   justify-content: space-around;
   flex-direction: column;
+  height: 100%;
+`
+
+const Wrapper = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+` 
+
+const TipContainer = styled.div`
+  display: flex;
+  width: 90%;
+  justify-content: space-between;
+  padding-top: 10px;
 `
 
 const ProfileImageContainer = styled.div`
   height: 100%;
+  width: 20%;
+  display: flex;
+  justify-content: center;
 `
 
 const ProfileImage = styled.img`
   width: 60px;
   height: 60px;
   border-radius: 9999px;
-  margin-right: 20px;
 `
 const CommentAuthor = styled.span`
-  font-weight: 500;
+  font-weight: 600;
+
+  span {
+    color: #646464;
+    font-weight: 300;
+  }
 `
 const CommentContent = styled.span`
   font-weight: 300;
-  word-break: break-word;
+  padding-top: 5px;
+  width: 90%;
+  word-wrap: break-word;
+  color: #3a3a3a;
 `
 const CommentTip = styled.button`
-  height: 40px;
-  margin-left: auto;
   background: none;
   font-size: 1rem;
   cursor: pointer;
@@ -57,28 +81,40 @@ interface CommentProps {
     tipComment: (id: any) => any,
     id: number,
 }
-const Comment = ({ author, timestamp, tips, content, tipComment, id }: CommentProps) => {
 
-    return (
-        <CommentContainer>
-            <ProfileImageContainer>
-                <ProfileImage src={`https://avatars.dicebear.com/api/personas/${author.toLowerCase()}.svg`} />
-            </ProfileImageContainer>
+const Comment = ({ author, timestamp, tips, content, tipComment, id }: CommentProps) => {
+  return (
+      <CommentContainer>
+          <ProfileImageContainer>
+              <ProfileImage src={`https://avatars.dicebear.com/api/personas/${author.toLowerCase()}.svg`} />
+          </ProfileImageContainer>
+          <Wrapper>
             <InfoContainer>
                 <CommentAuthor>
                     {copyAddress(author)} {timestamp}
                 </CommentAuthor>
                 <CommentContent>
-                    {content}
+                    {content} //Tips: {tips.toFixed(2)}
                 </CommentContent>
             </InfoContainer>
-            <CommentTip  onClick={() => { tipComment(id) }}>
-                Tips: {tips.toFixed(2)}
-                <img src={"/images/ethereum.svg"} width={"32px"} height={"32px"} />
-            </CommentTip>
-        </CommentContainer>
-    )
-
+            <TipContainer>
+              <CommentTip  onClick={() => { tipComment(id) }}>
+                  <img src={"/images/thumbUp.svg"} width={"18px"} height={"18px"} />
+              </CommentTip>
+              <CommentTip  onClick={() => { tipComment(id) }}>
+                  <img src={"/images/thumbDown.svg"} width={"18px"} height={"18px"} />
+              </CommentTip>
+              <CommentTip>
+                  <img src={"/images/comment.svg"} width={"18px"} height={"18px"} />
+              </CommentTip>
+              <CommentTip>
+                  <img src={"/images/share.svg"} width={"18px"} height={"18px"} />
+              </CommentTip>
+            </TipContainer>
+          </Wrapper>
+      </CommentContainer>
+  )
+  
 }
 
 export default Comment;
