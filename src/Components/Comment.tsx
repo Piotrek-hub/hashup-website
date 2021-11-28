@@ -91,10 +91,10 @@ const Comment = ({ author, timestamp, tips, content, tipComment, id }: CommentPr
           <Wrapper>
             <InfoContainer>
                 <CommentAuthor>
-                    {copyAddress(author)} {timestamp}
+                  {copyAddress(author)} {moment(new Date(Number(timestamp) * 1000)).fromNow(true)}
                 </CommentAuthor>
                 <CommentContent>
-                    {content} //Tips: {tips.toFixed(2)}
+                    {content} //Tips: {tips.toFixed(0)}
                 </CommentContent>
             </InfoContainer>
             <TipContainer>

@@ -66,7 +66,7 @@ export default function Comments({ address }: CommentsProps) {
     const [commentsLoaded, setCommentsLoaded] = useState(false);
     const [balance, setBalance ] = useState('');
 
-    let contractAddress: string = "0xecCe000ba85AEc1bC0Cd70ff20ff6637D6112507";
+    let contractAddress: string = "0x97915c82b9073F67144D14Fa4B60c81d7930F65a";
 
     
     if (window.ethereum) {
